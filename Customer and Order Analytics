@@ -72,3 +72,11 @@ ON cust.order_id=feb.orderID
 WHERE feb.quantity>2 -- specify > 2 products purchased
 AND length(orderid) = 6 -- filter out bad data
 AND orderid <> "Order ID"; -- filter out bad data
+
+#8 - list all the products sold in Los Angeles in February, and include how many of each were sold.
+
+SELECT product, sum(quantity) -- adds up the number of each product
+FROM BIT_DB.FebSales
+WHERE location like -- like searches location column for what trails it
+'%Los Angeles%' -- % make it so you dont need the exact string
+GROUP BY product -- have to group by when using an aggregate
