@@ -1,0 +1,74 @@
+#In this SQL, I'm querying a database with multiple tables in it to quantify statistics about customer and order data. 
+
+#1 - how many orders were placed in January?
+
+SELECT COUNT(orderid) -- total number of orders
+FROM BIT_DB.JanSales 
+WHERE length(orderid) = 6 -- filter out bad data
+AND orderid <> 'Order ID'; -- filter out bad data
+
+#2 - how many of those orders were for an iPhone?
+
+SELECT COUNT(orderid) -- total number of iphones
+FROM BIT_DB.JanSales
+WHERE Product="iPhone" -- specifying iPhone
+AND length(orderid) = 6 -- filter out bad data
+AND orderid <> "Order ID"; -- filter out bad data
+
+#3 - select the customer account numbers for all the orders that were placed in February
+
+SELECT distinct acctnum -- add distinct so we dont see repeats
+FROM BIT_DB.customers cust
+JOIN BIT_DB.FebSales feb -- inner join since we want all the overlapping data
+ON cust.order_id=feb.orderID
+WHERE length(orderid) = 6 -- filter out bad data
+AND orderid <> "Order ID"; -- filter out bad data
+
+#4 - which product was the cheapest sold in January and what was the price?
+SELECT distinct Product, Price -- will show product and price in table
+FROM BIT_DB.JanSales
+WHERE length(orderid) = 6 -- filter out bad data
+AND orderid <> "Order ID" -- filter out bad data
+ORDER BY Price ASC -- need to order by price asc so cheapest is on top
+LIMIT 1; -- make sure only top result appears
+
+# or solve like this
+
+SELECT distinct Product, Price -- will show product and price in table
+FROM BIT_DB.JanSales
+WHERE price IN ( --  use IN to reference a query we've already run
+SELECT MIN(price) FROM BIT_DB.JanSales) -- cheapest price in the table
+AND length(orderid) = 6 -- filter out bad data
+AND orderid <> "Order ID"; -- filter out bad data
+
+#5 - what is the total revenue for each product sold in january?
+
+SELECT Product, SUM(quantity)*price AS revenue -- quantity of each product sold times the price of each product
+FROM BIT_DB.JanSales
+WHERE length(orderid) = 6 -- filter out bad data
+AND orderid <> "Order ID" -- filter out bad data
+GROUP BY Product; -- so multiple of the same product are grouped into one
+
+#6 - which products were sold in february at 548 Lincoln St, Seattle, WA 98101, how many were sold, and what was the total revenue?
+
+SELECT 
+Product
+, sum(quantity) -- total quantity
+, SUM(quantity)*price AS revenue -- total revenue
+FROM BIT_DB.FebSales
+WHERE location ="548 Lincoln St, Seattle, WA 98101" -- specify location
+AND length(orderid) = 6 -- filter out bad data
+AND orderid <> "Order ID" -- filter out bad data
+GROUP BY Product; -- so multiple of the same product are grouped into one
+
+#7 - how many customers ordered more than 2 products at a time in feb and what was the average amount spent for those customers?
+
+SELECT 
+count(distinct cust.acctnum) AS customer_count -- no repeat account numbers
+, avg(quantity*price) AS revenue -- total revenue
+FROM BIT_DB.FebSales feb
+LEFT JOIN BIT_DB.customers cust -- only want feb sales records
+ON cust.order_id=feb.orderID
+WHERE feb.quantity>2 -- specify > 2 products purchased
+AND length(orderid) = 6 -- filter out bad data
+AND orderid <> "Order ID"; -- filter out bad data
