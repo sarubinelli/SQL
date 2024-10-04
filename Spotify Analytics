@@ -1,0 +1,99 @@
+# For this project, I downloaded Spotify data from Kaggle.
+# Then I created a table to insert Spotify data into.
+# Finally, I performed analytics on the data using SQL. 
+
+#Creating the table: 
+CREATE TABLE BIT_DB.Spotifydata (
+id integer PRIMARY KEY,
+artist_name varchar NOT NULL,
+track_name varchar NOT NULL,
+track_id varchar NOT NULL,
+popularity integer NOT NULL,
+danceability decimal(4,3) NOT NULL,
+energy decimal(4,3) NOT NULL,
+key integer NOT NULL,
+loudness decimal(5,3) NOT NULL,
+mode integer NOT NULL,
+speechiness decimal(5,4) NOT NULL,
+acousticness decimal(6,5) NOT NULL,
+instrumentalness text NOT NULL,
+liveness decimal(5,4) NOT NULL,
+valence decimal(4,3) NOT NULL,
+tempo decimal(6,3) NOT NULL,
+duration_ms integer NOT NULL,
+time_signature integer NOT NULL 
+)
+
+#Then I inserted the Spotify Data .csv into the table.
+
+#Next, I explored the data using the following SQL. 
+
+#First I determined the avg popularity, danceability, and energy by artist. 
+
+SELECT artist_name
+, round(avg(popularity),2) as popularity
+, round(avg(danceability),2) as danceability
+, round(avg(energy),2) as energy
+FROM spotifydata
+GROUP BY artist_name; -- group by artist so we see avg of all songs by the same artist
+
+#Then I determined who the Top 10 artists are by popularity.
+
+SELECT artist_name, avg(popularity) -- averaging out popularity of each song to account for repeat artists
+FROM spotifydata
+GROUP BY artist_name -- so no repeats
+ORDER BY popularity DESC
+LIMIT 10; 
+
+#And also the bottom 10 artists by popularity
+
+SELECT artist_name, avg(popularity) -- averaging out popularity of each song to account for repeat artists
+FROM spotifydata
+GROUP BY artist_name -- so no repeats
+ORDER BY popularity ASC
+LIMIT 10; 
+
+#Next I found what artist released the longest song, the name of the song, and how long is it
+
+SELECT artist_name, track_name, duration_ms
+FROM spotifydata
+ORDER BY duration_ms DESC
+LIMIT 1;
+
+#After that, I played around more with the top ten songs. I found the average danceability for the top 10 most songs.
+
+SELECT AVG(danceability) as dance
+FROM spotifydata
+WHERE track_name IN (
+SELECT track_name 
+FROM spotifydata 
+ORDER BY popularity DESC 
+LIMIT 10); 
+
+#I found which songs are in key 7 or higher
+
+SELECT track_name
+FROM spotifydata 
+WHERE song_key>=7;
+
+#And then found the top song using the above query
+
+SELECT track_name
+FROM spotifydata
+WHERE song_key>=7
+ORDER BY popularity DESC
+LIMIT 1;
+
+#Lastly, I narrowed my findings down to specific artists. I found which Olivia Rodrigo song is most popular:
+
+SELECT track_name
+FROM spotifydata
+WHERE artist_name="Olivia Rodrigo"
+ORDER BY popularity DESC
+LIMIT 1;
+
+#and how many BTS songs are on the list:
+
+SELECT count(*)
+FROM spotifydata
+WHERE artist_name="BTS";
