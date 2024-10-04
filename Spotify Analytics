@@ -97,3 +97,20 @@ LIMIT 1;
 SELECT count(*)
 FROM spotifydata
 WHERE artist_name="BTS";
+
+#I then learned how to do CTEs, so I answered the below question with the following query:
+
+#Calculate the average popularity for the artists in the Spotify data table. 
+#Then, for every artist with an average popularity of 90 or above, show their name, their average popularity, and label them as a “Top Star”.
+
+WITH temptable AS (
+SELECT avg(popularity) AS avg_pop
+, artist_name
+FROM spotifydata
+GROUP BY artist_name
+)
+SELECT artist_name
+, avg_pop
+, "top star" as tag
+FROM temptable
+WHERE avg_pop >=90;
